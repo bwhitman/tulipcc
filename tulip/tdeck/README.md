@@ -13,48 +13,97 @@ We default the T-Deck to a 6x8 REPL font, to get 53x30 REPL / editor screen inst
 
 ![T-Deck](../../docs/pics/tdeck_game.jpg)
 
-Keyboard Characters:
+## Keyboard
 
- * They keyboard by default ships with it reporting ASCII codes for each keypress, not any lower-level scan matrix codes. You can re-program the keyboard (it's powered by a separate ESP32-C2). It would be great to reprogram this but then others would have to deal with building a flashing jig to reprogram the ESP32-C2, so we may just have to be ok with it.
- * A raw REPL can be enabled by pressing `sym` and then `shift+b`, to revert back to the normal REPL simply press `sym` and then `shift+l`.
- * I had to cheat to get access to Control-C and Control-X (save in the editor.) Control-C is accessed by pressing right shift and the dollar sign or speaker key (depending on your model), and Control-X is left shift and the 0/microphone key.
- * An alternate character set can be accessed by pressing `alt+c`, this should allow the keyboard functionality to be expanded. The following characters are currently available:
+They keyboard by default ships with it reporting ASCII codes for each keypress, not any lower-level scan matrix codes, and the Alt key doesn't do anything. You can re-program the keyboard (it's powered by a separate ESP32-C2). It would be great to reprogram this but then others would have to deal with building a flashing jig to reprogram the ESP32-C2, so we may just have to be ok with it. Extra functionality has been provided in micropython to try and make the keyboard more complete.
 
- | Default | Alternate | Notes |
- |---|---|---|
- | `q` | `~` |  |
- | `w` | `%` |  |
- | `e` | `\|` |  |
- | `r` | `%` |  |
- | `t` | `{` |  |
- | `y` | `}` |  |
- | `(` | `[` | Requires `sym` button to be pressed after `alt+c` |
- | `)` | `]` | Requires `sym` button to be pressed after `alt+c` |
- | `u` | `^` |  |
- | `i` | `<` |  |
- | `o` | `>` |  |
- | `p` | `=` |  |
- | `g` | `\` |  |
- | `k` | `` ` `` |  |
- | `<space>` | `<tab>` |  |
+### Alternate Character Set
 
-Notes:
+An alternate character set can be accessed by pressing `alt+c` (the key with alt written on it, not our alt toggle), this should allow the keyboards character set to be expanded greatly.
 
- * The trackball is mapped to the arrow keys.
- * USB for MIDI and real keyboard *should* work, but it's annoying to test as the UART for monitoring goes over the same USB connection. There's a header on back for serial monitoring, so I'll eventually move to that and try to get USB working. Alternatively we could use MIDI over the exposed UART pins, but that would require a separate breakout board. 
- * If you get your T-Deck in a state where your computer can't find its USB-Serial connection anymore (probably because you're doing something with USB on Tulip), you have to force it back into bootloader mode before it'll flash again. To do that, flip it off, then hold down the trackball button (GPIO0) while flipping it back on again. You can let go of the ball right after you flip it on. The next time you flash, it'll stay in bootloader mode until you hit the "reset" button (opposite side from the power switch.) If you're trying to connect to the monitor, you'll see "waiting for download" -- that's your hint to hit the reset button.
- * Someone _could_ update the display code to variably refresh based on which parts of the screen was changing, as the S7789 has its own screen refresh RAM. But it may not be worth it. By default we refresh the entire screen every frame and achieve 30FPS using a 80MHz clock. 
+| Default   | Alternate | Notes                                     |
+|-----------|-----------|-------------------------------------------|
+| `q`       | `~`       |                                           |
+| `w`       | `&`       |                                           |
+| `e`       | `\|`      |                                           |
+| `r`       | `%`       |                                           |
+| `t`       | `{`       |                                           |
+| `y`       | `}`       |                                           |
+| `u`       | `^`       |                                           |
+| `i`       | `<`       |                                           |
+| `o`       | `>`       |                                           |
+| `p`       | `=`       |                                           |
+| `a`       | `¬`       | Prints nothing but should be a ¬ sign     |
+| `g`       | `\`       |                                           |
+| `k`       | `` ` ``   |                                           |
+| `$`       | `£`       | Prints nothing but should be a £ sign     |
+| `<space>` | `<tab>`   |                                           |
+| `(`       | `[`       | Requires symbol to be pressed after alt+c |
+| `)`       | `]`       | Requires symbol to be pressed after alt+c |
 
-Still todo 
+### Ctrl Toggle
 
- * Touchscreen support
- * ~~Serial console - you can read but not write to it~~ 
- * USB host support for keyboard and MIDI
- * SD card support
- * LoRA 
- * Battery voltage reporting
- * Integrate `CTRL` into the current keyboard implementation
- * Microphone support 
- * Try 120MHz SPI 
+A `ctrl` key toggle has been created, to enable it press `shift+0` together and then release them, now presss any configured letter and then `enter`. The shortcut will be sent to the running program/REPL and the toggle will be deactivated. 
+
+| Key       | Action                         | Notes                   |
+|-----------|--------------------------------|-------------------------|
+| `q`       | Device Control 1               |                         |
+| `w`       | End of Transmission Block      |                         |
+| `e`       | Enquiry Character              | Paste mode              |
+| `r`       | Device Control 2               |                         |
+| `t`       | Device Control 4               |                         |
+| `y`       | End of Medium                  |                         |
+| `u`       | Negative Acknowledge Character |                         |
+| `i`       | Horizontal Tab                 |                         |
+| `o`       | Shift In                       |                         |
+| `p`       | Data Link Escape               |                         |
+| `a`       | Start of Heading               | Enter raw REPL          |
+| `s`       | Device Control 3               |                         |
+| `d`       | End of Transmission Character  | Micropython soft reboot |
+| `f`       | Acknowledge Character          |                         |
+| `g`       | Bell Character                 |                         |
+| `h`       | Backspace Character            |                         |
+| `j`       | Linefeed Character             |                         |
+| `k`       | Vertical Tab                   |                         |
+| `l`       | Formfeed                       |                         |
+| `z`       | Substitute Character           |                         |
+| `x`       | Cancel Character               |                         |
+| `c`       | End of Text Character          | Keyboard interrupt      |
+| `v`       | Synchronous Idle               |                         |
+| `b`       | Start of Text                  | Exit raw REPL           |
+| `n`       | Shift Out                      |                         |
+| `m`       | Carriage Return                |                         |
+| `$`       | Delete Character               |                         |
+| `<space>` | Escape Character               |                         |
+
+### Alt toggle
+
+An `alt` key toggle has been created, to enable it press `shift+$` together and then release them, now presss any configured letter and then `enter`. The shortcut will be sent to the running program/REPL and the toggle will be deactivated. Alt-keycodes can be sent to the REPL by enabling the toggle with `shift+$`, then pressing `sym` before choosing a number, the `sym` key must be pressed before each digit, once the number is completed hit enter to send it to the REPL and disable the toggle. For example, to print a `$` symbol which is the 36th ASCII/Unicode character press the following keys in order: `shift+$` + `sym` + `3` + `sym` + `6` + `<enter>`.
+
+| Key | Action       | Notes |
+|-----|--------------|-------|
+| `e` | Up Key       |       |
+| `x` | Down Key     |       |
+| `s` | Left Key     |       |
+| `f` | Right Key    |       |
+
+## Notes
+
+* The trackball is mapped to the arrow keys.
+* USB for MIDI and real keyboard *should* work, but it's annoying to test as the UART for monitoring goes over the same USB connection. There's a header on back for serial monitoring, so I'll eventually move to that and try to get USB working. Alternatively we could use MIDI over the exposed UART pins, but that would require a separate breakout board. 
+* If you get your T-Deck in a state where your computer can't find its USB-Serial connection anymore (probably because you're doing something with USB on Tulip), you have to force it back into bootloader mode before it'll flash again. To do that, flip it off, then hold down the trackball button (GPIO0) while flipping it back on again. You can let go of the ball right after you flip it on. The next time you flash, it'll stay in bootloader mode until you hit the "reset" button (opposite side from the power switch.) If you're trying to connect to the monitor, you'll see "waiting for download" -- that's your hint to hit the reset button.
+* Someone _could_ update the display code to variably refresh based on which parts of the screen was changing, as the S7789 has its own screen refresh RAM. But it may not be worth it. By default we refresh the entire screen every frame and achieve 30FPS using a 80MHz clock. 
+
+## Still todo 
+
+* Touchscreen support
+* ~~Serial console - you can read but not write to it~~ 
+* USB host support for keyboard and MIDI
+* SD card support
+* LoRA 
+* Battery voltage reporting
+* ~~Expand onboard keyboard functionality~~
+* Microphone support 
+* Try 120MHz SPI 
 
 ![T-Deck](../../docs/pics/tdeck_repl.jpg)
